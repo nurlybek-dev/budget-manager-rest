@@ -1,0 +1,27 @@
+<div class="add-transaction">
+    <form action="{% url 'add-transaction' %}" class="add-transaction-form" method="POST">
+        {% csrf_token %}
+        <label for="account">Из</label>
+        <select name="source" id="source" required onchange="change_destination_options(this);">
+            <option value='' disabled selected>----------</option>
+            {% for income in incomes.accounts %}
+            <option value="{{ income.id }}"
+                {% if transaction.source.id == income.id %} selected
+                {% endif %}>{{income.name}}</option>
+            {% endfor %}
+            {% for deposit in deposits.accounts %}
+            <option value="{{ deposit.id }}"
+                {% if transaction.source.id == deposit.id %} selected
+                {% endif %}>{{deposit.name}}</option>
+            {% endfor %}
+        </select>
+        <label for="destination">В</label>
+        <select name="destination" id="destination" required></select>
+        <label for="amount">Сумму</label>
+        <input type="text" name="amount" id="amount" placeholder="1000" required>
+        <input type="date" name="date" id="date" required>
+        <input type="text" name="tags" placeholder="#метка">
+        <input type="text" name="comment" placeholder="комментраии">
+        <button type="submit">+</button>
+    </form>
+</div>

@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{%block title%}BudgetKeeper{% endblock%}</title>
+    <script src="https://kit.fontawesome.com/bf714b46a0.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+</head>
+
+<body>
+    <header class="header">
+        <div class="header__container">
+            <div class="header__logo">
+                <a href="{% url 'index' %}" class="header__title">
+                    BudgetKeeper
+                </a>
+            </div>
+            {% if user.is_authenticated %}
+            <div class="header__profile dropdown">
+                <div class="profile__email">{{ user }}</div>
+                <div class="dropdown-content">
+                    <a href="{% url 'settings' %}">Настройки</a>
+                    <a href="{% url 'logout' %}">Выйти</a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+    <main class="main">
+        <div class="main-container">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+    <footer></footer>
+    {% block scripts %}
+    <script src="{% static 'js/chart.js' %}"></script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'js/script.js' %}"></script>
+    {% endif %}
+    {% endblock %}
+
+</body>
+
+</html>

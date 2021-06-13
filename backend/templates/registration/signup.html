@@ -1,0 +1,48 @@
+<!-- templates/registration/signup.html -->
+{% extends 'base.html' %}
+{% block title %}Регистрация{% endblock title %}
+
+{% block content %}
+<div class="form-container">
+<h1 class="title">Регистрация</h1>
+<form method="POST" class="form">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="form-item">
+        <div class="form-item__icon">
+            <i class="fas fa-envelope"></i>
+        </div>
+        {{ form.email }}
+        {{ form.email.errors }}
+    </div>
+    <div class="form-item">
+        <div class="form-item__icon">
+            <i class="fas fa-key"></i>
+        </div>
+        {{ form.password1 }}
+        {{ form.password1.errors }}
+    </div>
+    <div class="form-item">
+        <div class="form-item__icon">
+            <i class="fas fa-key"></i>
+        </div>
+        {{ form.password2 }}
+        {{ form.password2.errors }}
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="submit">Зарегестрироваться</button>
+    </div>
+</form>
+<div class="form-meta">
+    <div>
+        Уже есть аккаунт? 
+        <a href="{% url 'login' %}">Войдите</a>
+    </div>
+</div>
+
+
+
+
+</div>
+
+{% endblock content %}

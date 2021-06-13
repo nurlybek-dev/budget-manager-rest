@@ -1,0 +1,127 @@
+{% for week_day in page_obj %}
+
+<div class="day">
+    <div class="day__header">
+        <span class="day__week-day">{{ week_day.day|date:'l' }}</span>
+        <span class="day__date">{{ week_day.day|date:'j F' }}</span>
+    </div>
+    <div class="day__body">
+        <div class="day__transactions">
+            {% for transaction in week_day.transactions %}
+
+            <div class="transaction">
+                <div class="transaction__view {{ transaction.type }}">
+                    <div class="transaction__body">
+                        <div class="transaction__categories">
+                            <div class="transaction__source">{{ transaction.source.name }}</div>
+                            <div class="transaction__destination">{{ transaction.destination.name }}</div>
+                        </div>
+                        <div class="transaction__data">
+                            <div class="transaction__amount">{{ transaction.amount }} Т</div>
+                            <div class="transaction__tags">{{ transaction.tags }}</div>
+                            <div class="transaction__comment">{{ transaction.comment }}</div>
+                        </div>
+                    </div>
+                    <div class="transaction__control">
+                        <div class="transaction__control-item">
+                            <form action="{% url 'delete-transaction' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="id" value="{{ transaction.id }}">
+                                <button type="submit">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="transaction__control-item transaction-form-toggle">
+                            <i class="fas fa-pencil-alt"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="transaction__edit hide">
+                    <form class="transaction-edit-form"
+                        action="{% url 'edit-transaction' pk=transaction.id %}" method="POST">
+                        {% csrf_token %}
+                        <div class="transaction__body">
+                            <div class="transaction__categories">
+                                <div class="transaction__source">
+                                    <select name="source" onchange="change_destination_options(this);">
+                                        {% for income in incomes.accounts %}
+                                        <option value="{{ income.id }}"
+                                            {% if transaction.source.id == income.id %} selected
+                                            {% endif %}>{{income.name}}</option>
+                                        {% endfor %}
+                                        {% for deposit in deposits.accounts %}
+                                        <option value="{{ deposit.id }}"
+                                            {% if transaction.source.id == deposit.id %} selected
+                                            {% endif %}>{{deposit.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="transaction__destination">
+                                    <select name="destination">
+                                        {% for deposit in deposits.accounts %}
+                                        <option value="{{ deposit.id }}"
+                                            {% if transaction.destination.id == deposit.id %} selected
+                                            {% endif %}>{{deposit.name}}</option>
+                                        {% endfor %}
+                                        {% if transaction.source.type != 1 %}
+                                        {% for expense in expenses.accounts %}
+                                        <option value="{{ expense.id }}"
+                                            {% if transaction.destination.id == expense.id %} selected
+                                            {% endif %}>{{expense.name}}</option>
+                                        {% endfor %}
+                                        {% endif %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="transaction__data">
+                                <div class="transaction__amount">
+                                    <input type="number" name="amount" value="{{ transaction.amount }}"
+                                        style="text-align: right;">
+                                </div>
+                                <div class="transaction__tags">
+                                    <input type="text" name="tags" value="{{ transaction.tags }}"
+                                        placeholder="#метки" style="text-align: right;">
+                                </div>
+                                <div class="transaction__comment">
+                                    <input type="text" name="comment" value="{{ transaction.comment }}"
+                                        placeholder="комментарии" style="text-align: right;">
+                                </div>
+                                <div class="transaction__date">
+                                    <input type="date" name="date"
+                                        value="{{ transaction.date | date:'Y-m-d' }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="transaction__control">
+                            <div class="transaction__control-item">
+                                <button type="button" class="close-transaction-form"><i
+                                        class="fas fa-ban"></i></button>
+                            </div>
+                            <div class="transaction__control-item">
+                                <button type="submit"><i class="fas fa-check"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div
+        class="day__footer {% if week_day.total > 0 %}day__footer-positive{%elif week_day.total < 0%}day__footer-negative{%endif%}">
+        <div class="day__balance">
+            <div class="day__footer-value"></div>
+            <div class="day__footer-title"></div>
+        </div>
+        <div class="day__total">
+            <div class="day__footer-value">{{ week_day.total }} T</div>
+            <div class="day__footer-title">итого</div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
+<script>
+    var pageCount = '{{ page_count }}';
+</script>

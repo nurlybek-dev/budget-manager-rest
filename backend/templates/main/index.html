@@ -1,0 +1,315 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'main/transaction_form.html' %}
+<div class="dashboard">
+    <div class="dashboard__column" style="min-width: 540px;">
+
+        <div class="category-block dashboard-card">
+            <div class="category-block__header">
+                <div class="category-block__title">
+                    <div class="category-block__name">Доходы</div>
+                    <div class="category-block__date">{{ today | date:'F Y' }}</div>
+                </div>
+                <div class="category-block__stats">
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">{{ incomes.actual }} Т</div>
+                        <div class="category-block__stats-title">получено</div>
+                    </div>
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">{{ incomes.planned }} Т</div>
+                        <div class="category-block__stats-title">бюджет доходов</div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-block__body">
+
+                {% for income in incomes.accounts %}
+                <div class="category category-income {%if forloop.counter > 4%}category__hidden{%endif%}">
+                    <div class="category__title">
+                        <a href="{% url 'account-detail' pk=income.id %}">{{ income.name }}</a>
+                    </div>
+                    <div class="category__icon-wrapper">
+                        <div class="category__fill" style="height: {{ income.get_fill_percent }}%;"></div>
+                        <a href="{% url 'account-detail' pk=income.id %}">
+                            <span class="category__icon"><i class="fas fa-wallet"></i></span>
+                        </a>
+                    </div>
+                    <div class="category__amount">
+                        <div class="category__actual-amount">
+                            {{ income.current_month_amount }} T
+                        </div>
+                        {% if income.planned_amount %}
+                        <div class="category__planned-amount">
+                            {{ income.planned_amount }} Т
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="category__edit" data-id="{{ income.id }}" data-type="income">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div class="category__delete">
+                        <a href="{% url 'delete-account' pk=income.id %}"><i class="fas fa-trash-alt"></i></a>
+                    </div>
+
+                </div>
+                {% endfor %}
+
+                <div class="category category_add-category modal-open {%if incomes.accounts.count > 4%}category__hidden{%endif%}" data-target="modal-add-income">
+                    <div class="category__icon-wrapper">
+                        <div class="category__icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            {%if incomes.accounts.count >= 4%}
+            <div class="category-block__trigger"></div>
+            {%endif%}
+        </div>
+
+        <div class="category-block dashboard-card">
+            <div class="category-block__header">
+                <div class="category-block__title">
+                    <div class="category-block__name">Счета</div>
+                    <div class="category-block__date">{{ today | date:'F Y' }}</div>
+                </div>
+                <div class="category-block__stats">
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">{{ deposits.actual }} Т</div>
+                        <div class="category-block__stats-title">в наличии</div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-block__body">
+                {% for deposit in deposits.accounts %}
+                <div class="category category-deposit {%if forloop.counter > 4%}category__hidden{%endif%}">
+                    <div class="category__title">
+                        <a href="{% url 'account-detail' pk=deposit.id %}">{{ deposit.name }}</a>
+                    </div>
+                    <div class="category__icon-wrapper">
+                        <div class="category__fill" style="height: {{ deposit.get_fill_percent }}%;"></div>
+                        <a href="{% url 'account-detail' pk=deposit.id %}">
+                            <span class="category__icon"><i class="fas fa-wallet"></i></span>
+                        </a>
+                    </div>
+                    <div class="category__amount">
+                        <div class="category__actual-amount">
+                            {{ deposit.current_month_amount }} Т
+                        </div>
+                        {% if deposit.planned_amount %}
+                        <div class="category__planned-amount">
+                            {{ deposit.planned_amount }} T
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="category__edit" data-id="{{ deposit.id }}" data-type="deposit">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div class="category__delete">
+                        <a href="{% url 'delete-account' pk=deposit.id %}"><i class="fas fa-trash-alt"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="category category_add-category modal-open {%if deposits.accounts.count > 3%}category__hidden{%endif%}" data-target="modal-add-deposit">
+                    <div class="category__icon-wrapper">
+                        <div class="category__icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {%if deposits.accounts.count > 3%}
+            <div class="category-block__trigger"></div>
+            {%endif%}
+        </div>
+
+        <div class="category-block dashboard-card">
+            <div class="category-block__header">
+                <div class="category-block__title">
+                    <div class="category-block__name">Расходы</div>
+                    <div class="category-block__date">{{ today | date:'F Y' }}</div>
+                </div>
+                <div class="category-block__stats">
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">{{ expenses.actual }} Т</div>
+                        <div class="category-block__stats-title">потрачено</div>
+                    </div>
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">{{ expenses.planned }} Т</div>
+                        <div class="category-block__stats-title">бюджет расходов</div>
+                    </div>
+                    <div class="category-block__stats-item">
+                        <div class="category-block__stats-amount">0 Т</div>
+                        <div class="category-block__stats-title">в планах</div>
+                    </div>
+                </div>
+            </div>
+            <div class="category-block__body">
+                {% for expense in expenses.accounts %}
+                <div class="category category-expense {%if forloop.counter > 12%}category__hidden{%endif%}">
+                    <div class="category__title">
+                        <a href="{% url 'account-detail' pk=expense.id %}">{{ expense.name }}</a>
+                    </div>
+                    <div class="category__icon-wrapper">
+                        <div class="category__fill" style="height: {{ expense.get_fill_percent }}%;"></div>
+                        <a href="{% url 'account-detail' pk=expense.id %}">
+                            <span class="category__icon"><i class="fas fa-shopping-cart"></i></span>
+                        </a>
+                    </div>
+                    <div class="category__amount">
+                        <div class="category__actual-amount">
+                            {{ expense.current_month_amount }} Т
+                        </div>
+                        {% if expense.planned_amount %}
+                        <div class="category__planned-amount">
+                            {{ expense.planned_amount }} T
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="category__edit" data-id="{{ expense.id }}" data-type="expense">
+                        <i class="fas fa-pencil-alt"></i>
+                    </div>
+                    <div class="category__delete">
+                        <a href="{% url 'delete-account' pk=expense.id %}"><i class="fas fa-trash-alt"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="category category_add-category modal-open {%if expenses.accounts.count > 12%}category__hidden{%endif%}" data-target="modal-add-expense">
+                    <div class="category__icon-wrapper">
+                        <div class="category__icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            {% if expenses.accounts.count >= 12 %}
+            <div class="category-block__trigger"></div>
+            {% endif %}
+        </div>
+
+    </div>
+    <div class="dashboard__column">
+        <div class="feed">
+            {% include 'main/transaction_list.html' %}
+        </div>
+    </div>
+</div>
+<div class="modal hide" id="modal-add-income">
+    <form class="form" action="{% url 'add-income' %}" method="POST">
+        <h2>Добавить доход</h2>
+        {% csrf_token %}
+        <div class="form-item">
+            {{ income_form.name }}
+        </div>
+        <div class="form-item">
+            {{ income_form.planned_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Добавить</button>
+        </div>
+    </form>
+</div>
+
+<div class="modal hide" id="modal-add-deposit">
+    <form class="form" action="{% url 'add-deposit' %}" method="POST">
+        <h2>Добавить счет</h2>
+        {% csrf_token %}
+        <div class="form-item">
+            {{ deposit_form.name }}
+        </div>
+        <div class="form-item">
+            {{ deposit_form.actual_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Добавить</button>
+        </div>
+    </form>
+</div>
+
+<div class="modal hide" id="modal-add-expense">
+    <form class="form" action="{% url 'add-expense' %}" method="POST">
+        <h2>Добавить затрату</h2>
+        {% csrf_token %}
+        <div class="form-item">
+            {{ expense_form.name }}
+        </div>
+        <div class="form-item">
+            {{ expense_form.planned_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Добавить</button>
+        </div>
+    </form>
+</div>
+
+
+<div class="modal hide" id="modal-edit-income">
+    <form class="form" action="{% url 'edit-account' pk=0 %}" method="POST">
+        <h2>Изменить доход</h2>
+        {% csrf_token %}
+        <input type="hidden" name="actual_amount" value="0">
+        <div class="form-item">
+            {{ income_form.name }}
+        </div>
+        <div class="form-item">
+            {{ income_form.planned_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="delete">Удалить</button>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Изменить</button>
+        </div>
+    </form>
+</div>
+
+<div class="modal hide" id="modal-edit-deposit">
+    <form class="form" action="{% url 'edit-account' pk=0 %}" method="POST">
+        <h2>Изменить счет</h2>
+        {% csrf_token %}
+        <input type="hidden" name="planned_amount" value="0">
+        <div class="form-item">
+            {{ deposit_form.name }}
+        </div>
+        <div class="form-item">
+            {{ deposit_form.actual_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="delete">Удалить</button>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Изменить</button>
+        </div>
+    </form>
+</div>
+
+<div class="modal hide" id="modal-edit-expense">
+    <form class="form" action="{% url 'edit-account' pk=0 %}" method="POST">
+        <h2>Изменить затрату</h2>
+        {% csrf_token %}
+        <input type="hidden" name="actual_amount" value="0">
+        <div class="form-item">
+            {{ expense_form.name }}
+        </div>
+        <div class="form-item">
+            {{ expense_form.planned_amount }}
+        </div>
+        <div class="form-actions">
+            <button type="button" class="delete">Удалить</button>
+        </div>
+        <div class="form-actions">
+            <button type="button" class="close">Закрыть</button>
+            <button type="submit" class="submit">Изменить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
